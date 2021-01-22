@@ -39,162 +39,127 @@
 
 using System;
 using System.IO;
-using System.Net.Mime;
 using System.Text;
 
 namespace UziSecureSmtpClient
 {
-/// <summary>
-/// Content type (plain or html)
-/// </summary>
-public enum ContentType
-	{
-	/// <summary>
-	/// Plain text content
-	/// </summary>
-	Plain,
-	/// <summary>
-	/// HTML content
-	/// </summary>
-	Html,
-	}
+    /// <summary>
+    /// Content type (plain or html)
+    /// </summary>
+    public enum ContentType
+    {
+        /// <summary>
+        /// Plain text content
+        /// </summary>
+        Plain,
+        /// <summary>
+        /// HTML content
+        /// </summary>
+        Html,
+    }
 
-/// <summary>
-/// Content part
-/// </summary>
-/// <remarks>
-///	The SecureSmtpCcontent class is a child class of the
-///	SecureSmtpMessage class. It holds the content plain text part,
-///	or the html part.
-/// </remarks>
-public class SecureSmtpContent : SecureSmtpPart
-	{
-	/// <summary>
-	/// Character set (override default utf-7)
-	/// </summary>
-	public string CharSet;
-	/// <summary>
-	/// Media type (override default  "text/html" or "text/plain")
-	/// </summary>
-	public string MediaType;
-	/// <summary>
-	/// Content transfer encoding (override QuotedPrintable)
-	/// </summary>
-	public TransferEncoding ContentTransferEncoding;
+    /// <summary>
+    /// Content part
+    /// </summary>
+    /// <remarks>
+    ///	The SecureSmtpCcontent class is a child class of the
+    ///	SecureSmtpMessage class. It holds the content plain text part,
+    ///	or the html part.
+    /// </remarks>
+    public class SecureSmtpContent : SecureSmtpPart
+    {
+        /// <summary>
+        /// Character set (override default utf-7)
+        /// </summary>
+        public string CharSet;
+        /// <summary>
+        /// Media type (override default  "text/html" or "text/plain")
+        /// </summary>
+        public string MediaType;
 
-	private ContentType Type;
-	private string ContentString;
+        private ContentType Type;
+        private string ContentString;
 
-	/// <summary>
-	/// Email content as a string
-	/// </summary>
-	/// <param name="Type">Content media type</param>
-	/// <param name="ContentString">Content string</param>
-	public SecureSmtpContent
-			(
-			ContentType Type,
-			string ContentString
-			)
-		{
-		this.ContentString = ContentString;
-		ConstructorHelper(Type);
-		return;
-		}
+        /// <summary>
+        /// Email content as a string
+        /// </summary>
+        /// <param name="Type">Content media type</param>
+        /// <param name="ContentString">Content string</param>
+        public SecureSmtpContent
+                (
+                ContentType Type,
+                string ContentString
+                )
+        {
+            this.ContentString = ContentString;
+            ConstructorHelper(Type);
+            return;
+        }
 
-	/// <summary>
-	/// Email content as a stream
-	/// </summary>
-	/// <param name="Type">Content media type</param>
-	/// <param name="ContentStream">Content stream</param>
-	public SecureSmtpContent
-			(
-			ContentType Type,
-			Stream ContentStream
-			)
-		{
-		// read content string from the stream
-		using (StreamReader Reader = new StreamReader(ContentStream))
-			{
-			ContentString = Reader.ReadToEnd();
-			}
-		ConstructorHelper(Type);
-		return;
-		}
+        /// <summary>
+        /// Email content as a stream
+        /// </summary>
+        /// <param name="Type">Content media type</param>
+        /// <param name="ContentStream">Content stream</param>
+        public SecureSmtpContent
+                (
+                ContentType Type,
+                Stream ContentStream
+                )
+        {
+            // read content string from the stream
+            using (StreamReader Reader = new StreamReader(ContentStream))
+            {
+                ContentString = Reader.ReadToEnd();
+            }
+            ConstructorHelper(Type);
+            return;
+        }
 
-	////////////////////////////////////////////////////////////////////
-	// Constructor helper
-	////////////////////////////////////////////////////////////////////
-	private void ConstructorHelper
-			(
-			ContentType Type
-			)
-		{
-		if(string.IsNullOrWhiteSpace(ContentString)) throw new ApplicationException("Content string is empty.");
-		this.Type = Type;
-		MediaType = Type == ContentType.Html ? "text/html" : "text/plain";
-		CharSet = "utf-7";
-		ContentTransferEncoding = TransferEncoding.QuotedPrintable;
-		return;
-		}
+        ////////////////////////////////////////////////////////////////////
+        // Constructor helper
+        ////////////////////////////////////////////////////////////////////
+        private void ConstructorHelper
+                (
+                ContentType Type
+                )
+        {
+            if (string.IsNullOrWhiteSpace(ContentString)) throw new ApplicationException("Content string is empty.");
+            this.Type = Type;
+            MediaType = Type == ContentType.Html ? "text/html" : "text/plain";
+            CharSet = "utf-8";
+            return;
+        }
 
-	////////////////////////////////////////////////////////////////////
-	// Send content to output stream
-	////////////////////////////////////////////////////////////////////
-	internal override void SendData
-			(
-			StreamWriter Writer
-			)
-		{
-		// save output stream
-		this.Writer = Writer;
+        ////////////////////////////////////////////////////////////////////
+        // Send content to output stream
+        ////////////////////////////////////////////////////////////////////
+        internal override void SendData
+                (
+                StreamWriter Writer
+                )
+        {
+            // save output stream
+            this.Writer = Writer;
 
-		// send content-type header
-		SendDataLine(string.Format("content-type: {0}; charset={1}{2}", MediaType, CharSet, Type == ContentType.Html ? "" : "; format=flowed"));
+            // send content-type header
+            SendDataLine(string.Format("content-type: {0}; charset={1}{2}", MediaType, CharSet, Type == ContentType.Html ? "" : "; format=flowed"));
 
-		// send content-transfer-encoding header
-		SendDataLine(string.Format("content-transfer-encoding: {0}", TransferEncodingText(ContentTransferEncoding)));
+            // send content-transfer-encoding header
+            SendDataLine(string.Format("content-transfer-encoding: {0}", "base64"));
 
-		// send extra CRLF
-		SendEndOfLine();
+            // send extra CRLF
+            SendEndOfLine();
 
-		// convert content string unicode to byte array
-		byte[] ContentBytes = Encoding.UTF8.GetBytes(ContentString);
-		char[] CharBuffer = null;
-		string EncodedText = null;
-		switch(ContentTransferEncoding)
-			{
-			case TransferEncoding.QuotedPrintable:
-				EncodedText = QuotedPrintableEncode(ContentBytes, true);
-				break;
+            // convert content string unicode to byte array
+            byte[] ContentBytes = Encoding.UTF8.GetBytes(ContentString);
+            char[] CharBuffer = null;
+            string EncodedText = null;
+            EncodedText = Convert.ToBase64String(ContentBytes, Base64FormattingOptions.InsertLineBreaks);
 
-			case TransferEncoding.Base64:
-				EncodedText = Convert.ToBase64String(ContentBytes, Base64FormattingOptions.InsertLineBreaks);
-				break;
-
-			case TransferEncoding.SevenBit:
-				CharBuffer = new char[ContentBytes.Length];
-				for(int Index = 0; Index < ContentBytes.Length; Index++)
-					{
-					if((ContentBytes[Index] & 0x80) != 0 || ContentBytes[Index] == 0) throw new ApplicationException("Seven bit transfer encoding failed.");
-					CharBuffer[Index] = (char) ContentBytes[Index];
-					}
-				EncodedText = new string(CharBuffer);
-				break;
-
-			case TransferEncoding.EightBit:
-				CharBuffer = new char[ContentBytes.Length];
-				for(int Index = 0; Index < ContentBytes.Length; Index++)
-					{
-					if(ContentBytes[Index] == 0) throw new ApplicationException("Eight bit transfer encoding failed.");
-					CharBuffer[Index] = (char) ContentBytes[Index];
-					}
-				EncodedText = new string(CharBuffer);
-				break;
-			}
-
-		// send plain text view
-		SendDataBlock(EncodedText);
-		return;
-		}
-	}
+            // send plain text view
+            SendDataBlock(EncodedText);
+            return;
+        }
+    }
 }

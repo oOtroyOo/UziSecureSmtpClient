@@ -37,8 +37,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Net.Mail;
-using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -59,19 +57,19 @@ public class SecureSmtpMessage
 	/// <summary>
 	/// Message from address
 	/// </summary>
-	public MailAddress From;
+	public SecureSmtpMailAddress From;
 	/// <summary>
 	/// Message list of to addresses
 	/// </summary>
-	public List<MailAddress> To;
+	public List<SecureSmtpMailAddress> To;
 	/// <summary>
 	/// Message list of CC addresses
 	/// </summary>
-	public List<MailAddress> Cc;
+	public List<SecureSmtpMailAddress> Cc;
 	/// <summary>
 	/// Message list of BCC addresses
 	/// </summary>
-	public List<MailAddress> Bcc;
+	public List<SecureSmtpMailAddress> Bcc;
 	/// <summary>
 	/// Message root part. It can be content, attachment or multipart boundary.
 	/// </summary>
@@ -82,9 +80,9 @@ public class SecureSmtpMessage
 	/// </summary>
 	public SecureSmtpMessage()
 		{
-		To = new List<MailAddress>();
-		Cc = new List<MailAddress>();
-		Bcc = new List<MailAddress>();
+		To = new List<SecureSmtpMailAddress>();
+		Cc = new List<SecureSmtpMailAddress>();
+		Bcc = new List<SecureSmtpMailAddress>();
 		return;
 		}
 	}
