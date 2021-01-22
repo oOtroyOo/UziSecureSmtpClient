@@ -192,8 +192,10 @@ public class SecureSmtpAttachment : SecureSmtpPart
 			}
 		else if(string.IsNullOrWhiteSpace(FileName)) FileName = Name;
 
-		// send content-type header
-		SendDataLine(string.Format("content-type: {0}; name={1}", MediaType, Name));
+		    Name = ToEncodeString(Name);
+		    FileName = ToEncodeString(FileName);
+		    // send content-type header
+            SendDataLine(string.Format("content-type: {0}; name={1}", MediaType, Name));
 
 		// send content-transfer-encoding header
 		SendDataLine(string.Format("content-transfer-encoding: {0}", TransferEncodingText(ContentTransferEncoding)));

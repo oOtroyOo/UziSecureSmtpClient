@@ -138,6 +138,12 @@ public class SecureSmtpPart
 		throw new ApplicationException("Unknown transfer encoding.");
 		}
 
+	    protected string ToEncodeString(string value)
+	    {
+            //fileName="=?UTF-8?B?"+enc.encode(file.getName().getBaseName().getBytes("utf-8"))+"?=";
+            return  "=?UTF-8?B?" + Convert.ToBase64String(Encoding.UTF8.GetBytes(value)) + "?=";
+	    }
+
 	/// <summary>
 	/// Quoted Printable Encoding
 	/// </summary>
