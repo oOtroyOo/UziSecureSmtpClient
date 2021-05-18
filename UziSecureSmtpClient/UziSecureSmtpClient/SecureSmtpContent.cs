@@ -1,4 +1,4 @@
-﻿/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 //
 //	UziSecureSmtpClient
 //	Secure SMTP Client .NET Class Library developed in c#.
@@ -160,6 +160,12 @@ namespace UziSecureSmtpClient
             // send plain text view
             SendDataBlock(EncodedText);
             return;
+        }
+
+        public override void Dispose()
+        {
+            ContentString = null;
+            base.Dispose();
         }
     }
 }

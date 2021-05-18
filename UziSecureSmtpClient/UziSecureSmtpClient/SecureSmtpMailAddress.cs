@@ -1,4 +1,4 @@
-﻿
+
 namespace UziSecureSmtpClient
 {
     public class SecureSmtpMailAddress

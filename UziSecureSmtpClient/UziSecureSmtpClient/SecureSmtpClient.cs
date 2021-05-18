@@ -1,4 +1,4 @@
-﻿/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 //
 //	UziSecureSmtpClient
 //	Secure SMTP Client .NET Class Library developed in c#.
@@ -38,7 +38,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Net.Mail;
 using System.Net.Security;
@@ -46,6 +45,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace UziSecureSmtpClient
 {
@@ -155,34 +155,7 @@ namespace UziSecureSmtpClient
             this.UserName = UserName;
             this.UserPassword = UserPassword;
             AuthMethod = Authentication.PlainText;
-            if (ConnMethod == ConnectMethod.Unsecure) Port = 587;
-            return;
-        }
-
-        /// <summary>
-        /// Secure SMTP Client constructor for OAuth2 authorization
-        /// </summary>
-        /// <param name="Host">Email server host name</param>
-        /// <param name="UserName">User name (host login id)</param>
-        /// <param name="OAuth2">Class implementing IOAuth2 interface</param>
-        public SecureSmtpClient
-                (
-                string Host,
-                string UserName,
-                IOAuth2 OAuth2
-                )
-        {
-            // test all required values
-            if (string.IsNullOrWhiteSpace(Host)) throw new ApplicationException("Host name is missing");
-            if (string.IsNullOrWhiteSpace(UserName)) throw new ApplicationException("User name is missing");
-            if (OAuth2 == null) throw new ApplicationException("Authorization value is missing");
-
-            // save arguments
-            this.Host = Host;
-            this.UserName = UserName;
-            this.OAuth2 = OAuth2;
-            AuthMethod = Authentication.OAuth2;
-            ConnMethod = ConnectMethod.Secure;
+            if (ConnMethod == ConnectMethod.Unsecure) Port = 25;
             return;
         }
 
@@ -223,6 +196,7 @@ namespace UziSecureSmtpClient
         {
             try
             {
+
                 if (string.IsNullOrWhiteSpace(Message.Subject)) throw new ApplicationException("Email subject is missing");
                 if (Message.From == null || string.IsNullOrWhiteSpace(Message.From.Address)) throw new ApplicationException("From address is missing or in error");
                 if (Message.To.Count == 0) throw new ApplicationException("At least one mail to address is required");
@@ -247,7 +221,6 @@ namespace UziSecureSmtpClient
 
                 // get supported authorization from last reply
                 SupportedAuthorizations();
-
                 // plain text authentication method
                 if (AuthMethod == Authentication.PlainText)
                 {
@@ -332,7 +305,6 @@ namespace UziSecureSmtpClient
                 }
                 catch (Exception e)
                 {
-                    Debug.WriteLine(e.Message);
                     throw e;
                 }
             });
@@ -372,7 +344,7 @@ namespace UziSecureSmtpClient
             if (ReplyCode != SmtpReplyCode.Ready)
             {
 #if DEBUG
-                Debug.WriteLine(string.Format("Open connection to {0} failed. Reply code {1}", Host, (int)ReplyCode));
+                Debug.LogError(string.Format("Open connection to {0} failed. Reply code {1}", Host, (int)ReplyCode));
 #endif
 
                 throw new ApplicationException("Connect to mail server failed:" + ReplyCode + " " + msg);
@@ -496,7 +468,7 @@ namespace UziSecureSmtpClient
                 )
         {
 #if DEBUG
-            Debug.WriteLine(Command);
+            Debug.Log(Command);
 #endif
 
             // send command
@@ -511,9 +483,9 @@ namespace UziSecureSmtpClient
                 if (ReplyCode != ExpectedReply)
                 {
 #if DEBUG
-                    Debug.WriteLine(string.Format("Send command {0} failed. Reply code {1}", Command, (int)ReplyCode));
+                    Debug.LogError(string.Format("Send command {0} failed. Reply code {1}", Command, (int)ReplyCode));
 #endif
-                    throw new ApplicationException("Command error: " + Command + " " + msg);
+                    throw new ApplicationException("error: " + msg);
                 }
             }
             return;
@@ -528,7 +500,7 @@ namespace UziSecureSmtpClient
                 )
         {
 #if DEBUG
-            Debug.WriteLine(Text);
+            Debug.Log(Text);
 #endif
 
             // send command
@@ -559,7 +531,7 @@ namespace UziSecureSmtpClient
                 )
         {
 #if DEBUG
-            Debug.WriteLine("Subject: " + Text);
+            Debug.Log("Subject: " + Text);
 #endif
 
             // test for unicode characters (not ascii)

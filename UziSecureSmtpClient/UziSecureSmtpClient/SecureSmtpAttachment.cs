@@ -1,4 +1,4 @@
-﻿/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 //
 //	UziSecureSmtpClient
 //	Secure SMTP Client .NET Class Library developed in c#.
@@ -38,7 +38,6 @@
 
 using System;
 using System.IO;
-using System.Text;
 
 namespace UziSecureSmtpClient
 {
@@ -101,8 +100,8 @@ namespace UziSecureSmtpClient
         {
             // load contents from stream
             AttachmentStream = new FileStream(AttachmentFileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-            int Ptr = AttachmentFileName.LastIndexOf('\\');
-            ConstructorHelper(Type, AttachmentFileName.Substring(Ptr + 1), ContentID);
+
+            ConstructorHelper(Type, Path.GetFileName(AttachmentFileName), ContentID);
             return;
         }
 
@@ -209,6 +208,10 @@ namespace UziSecureSmtpClient
             // content stream to base64
             const int BufLen = 57 * 1024;
             byte[] Buf = new byte[BufLen];
+            if (AttachmentStream.CanSeek)
+            {
+                AttachmentStream.Seek(0, 0);
+            }
             using (BinaryReader Reader = new BinaryReader(AttachmentStream))
             {
                 for (; ; )
@@ -223,6 +226,20 @@ namespace UziSecureSmtpClient
 
             // send plain text view
             return;
+        }
+
+        public override void Dispose()
+        {
+            try
+            {
+                AttachmentStream?.Dispose();
+            }
+            catch (Exception e)
+            {
+
+            }
+
+            base.Dispose();
         }
     }
 }

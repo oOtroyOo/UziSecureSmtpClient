@@ -1,4 +1,4 @@
-﻿/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 //
 //	UziSecureSmtpClient
 //	Secure SMTP Client .NET Class Library developed in c#.
@@ -36,6 +36,7 @@
 //	For full history please view SecureSmtpClient.cs
 /////////////////////////////////////////////////////////////////////
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
@@ -160,6 +161,15 @@ public class SecureSmtpMultipart : SecureSmtpPart
 			SendDataLine(BoundaryLine);
 			}		
 		return;
+		}
+
+	    public override void Dispose()
+	    {
+	        foreach (var part in Children)
+	        {
+	            part.Dispose();
+	        }
+            base.Dispose();
 		}
 	}
 }

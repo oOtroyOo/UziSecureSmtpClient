@@ -1,4 +1,4 @@
-﻿/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 //
 //	UziSecureSmtpClient
 //	Secure SMTP Client .NET Class Library developed in c#.
@@ -36,7 +36,7 @@
 /////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Diagnostics;
+using UnityEngine;
 using System.IO;
 using System.Text;
 
@@ -45,7 +45,7 @@ namespace UziSecureSmtpClient
     /// <summary>
     /// Secure SMTP Part base class for message parts
     /// </summary>
-    public class SecureSmtpPart
+    public abstract class SecureSmtpPart:IDisposable
     {
         /// <summary>
         /// Stream writer
@@ -83,7 +83,7 @@ namespace UziSecureSmtpClient
                 )
         {
 #if DEBUG
-            Debug.WriteLine(Text);
+            Debug.Log(Text);
 #endif
 
             Writer.Write(Text);
@@ -249,5 +249,7 @@ namespace UziSecureSmtpClient
             // exit
             return Str.ToString();
         }
+
+        public abstract void Dispose();
     }
 }
